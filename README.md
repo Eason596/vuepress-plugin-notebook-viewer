@@ -1,156 +1,180 @@
 # vuepress-plugin-notebook-viewer
 
-A VuePress plugin for rendering Jupyter Notebook files (.ipynb) using [nbviewer.js](https://github.com/kokes/nbviewer.js).
+在 VuePress 2 站点中渲染 Jupyter Notebook（`.ipynb`）的插件，基于 [nbviewer.js](https://github.com/kokes/nbviewer.js) 在浏览器端完成渲染。
 
-## Features
+## 功能
 
-- 📚 Render Jupyter Notebook files (.ipynb) directly in your VuePress site
-- 🎨 Support for light/dark/auto theme modes
-- 📐 Customizable width and height for the viewer container
-- 📦 Automatic loading of required dependencies (prism, katex, marked)
-- 📥 Download button for original notebook files
-- ⚡ Built-in loading states and error handling
-- 📦 Local JS dependencies (no external CDN required for core rendering)
+- 在 Markdown 页面中通过 `<NotebookViewer />` 组件嵌入 notebook
+- 支持 `light` / `dark` / `auto` 主题，`auto` 跟随 [vuepress-theme-plume](https://theme-plume.vuejs.press/) 的深色模式
+- 可配置容器 `width` / `height`
+- 内置加载状态、错误提示与重试
+- 支持下载原始 `.ipynb` 文件
+- 内置本地 `nbviewer.js`，无需用户手动下载第三方脚本
 
-## Installation
+## 环境要求
+
+| 依赖 | 版本 |
+| --- | --- |
+| Node.js | `^20.19.0` 或 `>=22.0.0` |
+| VuePress | `^2.0.0-rc.30` |
+| Vue | `^3.5.0` |
+| vuepress-theme-plume | `^1.0.0-rc.202` |
+
+> 本插件使用 Plume 主题的 `useDarkMode`，因此需要配合 **vuepress-theme-plume** 使用。
+
+## 安装
 
 ```bash
 npm install vuepress-plugin-notebook-viewer
-# or
-yarn add vuepress-plugin-notebook-viewer
-# or
+# 或
 pnpm add vuepress-plugin-notebook-viewer
+# 或
+yarn add vuepress-plugin-notebook-viewer
 ```
 
-## Usage
+本地开发时，可将插件仓库放在项目旁并通过 `file:` 协议安装：
 
-### 1. Register the plugin
+```bash
+npm install ../vuepress-plugin-notebook-viewer
+```
 
-In your `.vuepress/config.ts`:
+## 快速开始
+
+### 1. 注册插件
+
+在 `.vuepress/config.ts` 中：
 
 ```typescript
 import { defineUserConfig } from 'vuepress'
+import { plumeTheme } from 'vuepress-theme-plume'
 import { notebookViewerPlugin } from 'vuepress-plugin-notebook-viewer'
 
 export default defineUserConfig({
+  theme: plumeTheme({ /* ... */ }),
   plugins: [
     notebookViewerPlugin({
-      // Optional: set default theme (default: 'auto')
       defaultTheme: 'auto',
     }),
   ],
 })
 ```
 
-### 2. Use the component
+### 2. 放置 notebook 文件
 
-Place your `.ipynb` files in the `public` directory, then use the component in your Markdown files:
+将 `.ipynb` 文件放到 VuePress 的 `public` 目录，例如：
 
-```markdown
-<NotebookViewer src="/notebook.ipynb" />
+```
+docs/
+└── .vuepress/
+    └── public/
+        └── demo.ipynb
 ```
 
-### Component Props
+构建后可通过 `/demo.ipynb` 访问。
 
-| Prop | Type | Default | Description |
+### 3. 在 Markdown 中使用
+
+```markdown
+<NotebookViewer src="/demo.ipynb" />
+```
+
+## 组件 Props
+
+| Prop | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `src` | `string` | (required) | Path to the notebook file (.ipynb) |
-| `theme` | `'light' \| 'dark' \| 'auto'` | `'auto'` | Theme mode |
-| `width` | `string` | `'100%'` | Container width (e.g., `'800px'`, `'100%'`, `'90vw'`) |
-| `height` | `string` | `'600px'` | Container height (e.g., `'500px'`, `'70vh'`) |
+| `src` | `string` | （必填） | notebook 文件路径，相对于站点根路径 |
+| `theme` | `'light' \| 'dark' \| 'auto'` | 继承插件配置 | 单个实例的主题，优先级高于插件 `defaultTheme` |
+| `width` | `string` | `'100%'` | 整个 viewer 外框宽度 |
+| `height` | `string` | `'600px'` | 标题栏下方内容区的滚动高度 |
 
-## Plugin Options
+主题优先级：
 
-| Option | Type | Default | Description |
+```
+组件 theme  >  插件 defaultTheme  >  'auto'
+```
+
+## 插件配置
+
+```typescript
+notebookViewerPlugin({
+  defaultTheme: 'auto', // 'light' | 'dark' | 'auto'
+})
+```
+
+| 选项 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `enabled` | `boolean` | `true` | Enable/disable the plugin |
-| `defaultTheme` | `'light' \| 'dark' \| 'auto'` | `'auto'` | Default theme for all instances |
+| `defaultTheme` | `'light' \| 'dark' \| 'auto'` | `'auto'` | 所有 `<NotebookViewer />` 的默认主题 |
 
-## Examples
+## 示例
 
-### Basic Usage
-
-```markdown
-# My Notebook
-
-<NotebookViewer src="/my-analysis.ipynb" />
-```
-
-### Custom Dimensions
+### 基础用法
 
 ```markdown
-<!-- Fixed size -->
-<NotebookViewer src="/notebook.ipynb" width="800px" height="500px" />
+# 数据分析笔记
 
-<!-- Responsive size -->
-<NotebookViewer src="/notebook.ipynb" width="100%" height="70vh" />
-
-<!-- Viewport units -->
-<NotebookViewer src="/notebook.ipynb" width="90vw" height="80vh" />
+<NotebookViewer src="/analysis.ipynb" />
 ```
 
-### Theme Control
+### 自定义尺寸
 
 ```markdown
-<!-- Force light theme -->
-<NotebookViewer src="/notebook.ipynb" theme="light" />
-
-<!-- Force dark theme -->
-<NotebookViewer src="/notebook.ipynb" theme="dark" />
-
-<!-- Auto (follows system/browser preference) -->
-<NotebookViewer src="/notebook.ipynb" theme="auto" />
+<NotebookViewer src="/analysis.ipynb" width="800px" height="500px" />
+<NotebookViewer src="/analysis.ipynb" width="100%" height="70vh" />
 ```
 
-## Project Structure
+### 主题控制
+
+```markdown
+<!-- 跟随站点深色模式 -->
+<NotebookViewer src="/analysis.ipynb" theme="auto" />
+
+<!-- 强制深色 / 浅色 -->
+<NotebookViewer src="/analysis.ipynb" theme="dark" />
+<NotebookViewer src="/analysis.ipynb" theme="light" />
+```
+
+## 渲染能力
+
+基于 nbviewer.js，当前支持：
+
+- Markdown 单元格（标题、列表、链接、图片等）
+- 代码单元格（Python / Julia / R 等，通过 Prism 高亮）
+- LaTeX 公式（通过 KaTeX）
+- 输出类型：纯文本、HTML、PNG、JPEG、SVG、stream、error
+
+## 依赖说明
+
+| 资源 | 来源 |
+| --- | --- |
+| `nbviewer.js` | 插件内置（`src/public/nbviewer.js`） |
+| `marked`、`Prism`、`KaTeX` | 运行时从 CDN 加载 |
+
+首次打开 notebook 时需要网络连接以加载语法高亮和公式渲染依赖。
+
+## 项目结构
 
 ```
 vuepress-plugin-notebook-viewer/
 ├── src/
 │   ├── components/
-│   │   └── NotebookViewer.vue    # Main Vue component
+│   │   └── NotebookViewer.vue   # 主组件
 │   ├── public/
-│   │   └── nbviewer.js           # Local nbviewer.js library
-│   ├── client.ts                 # Client-side configuration
-│   └── index.ts                  # Plugin entry point
-├── README.md
+│   │   └── nbviewer.js          # 本地 nbviewer 库（含深色主题适配）
+│   ├── client.ts                # 客户端配置
+│   ├── options.ts               # 插件选项类型
+│   └── index.ts                 # 插件入口
 ├── package.json
-├── tsconfig.json
-└── vite.config.ts
+└── README.md
 ```
 
-## Features in Detail
+## 开发
 
-### Markdown Rendering
-Supports standard Markdown features:
-- Headings (H1-H6)
-- Bold and italic text
-- Inline code and code blocks
-- Links and images
-- Lists (ordered and unordered)
+在插件仓库中修改代码后，在使用方项目中重新安装或刷新 `file:` 依赖，并重启 VuePress 开发服务：
 
-### Code Highlighting
-Uses Prism.js for syntax highlighting, supporting:
-- Python
-- Julia
-- R
-- And many other languages
+```bash
+npm run docs:dev
+```
 
-### Mathematical Equations
-Uses KaTeX for rendering LaTeX mathematical expressions.
-
-### Output Rendering
-Supports various notebook output types:
-- Text output
-- HTML output
-- Image output (PNG, JPEG)
-
-## Requirements
-
-- VuePress 2.x
-- VuePress Theme Plume
-- Vue 3.x
-
-## License
+## 许可证
 
 MIT
