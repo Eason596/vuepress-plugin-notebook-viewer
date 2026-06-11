@@ -1,0 +1,40 @@
+{
+  "name": "vuepress-plugin-notebook-viewer",
+  "version": "1.0.0",
+  "description": "A VuePress plugin for rendering Jupyter Notebook files (.ipynb) using nbviewer.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc && vite build",
+    "dev": "vite build --watch",
+    "lint": "eslint . --ext .ts,.vue",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "vuepress",
+    "vuepress-plugin",
+    "notebook",
+    "jupyter",
+    "ipynb"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "vuepress": "^2.0.0-rc.30",
+    "vuepress-theme-plume": "^1.0.0-rc.202"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vue/eslint-config-typescript": "^12.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^6.0.0",
+    "vite": "^5.0.0",
+    "vue": "^3.5.0",
+    "vuepress": "^2.0.0-rc.30",
+    "vuepress-theme-plume": "^1.0.0-rc.202"
+  }
+}
